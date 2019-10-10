@@ -1,0 +1,49 @@
+﻿#pragma kernel CSMain
+
+RWTexture2D<float4> RendTex;
+
+// left, dx, top, dy
+float4 Params;
+
+uint Iterations;
+
+float2 Mult(float2 c, float2 d)
+{
+	return float2(c.x * d.x - c.y * d.y, c.x * d.y + c.y * d.x);
+}
+
+float Mag(float2 c)
+{
+	return sqrt(c.x * c.x + c.y * c.y);
+}
+
+
+//float3 HUEtoRGB(float H)
+//{
+//	float R = abs(H * 6 - 3) - 1;
+//	float G = 2 - abs(H * 6 - 2);
+//	float B = 2 - abs(H * 6 - 4);
+//	return saturate(float3(R, G, B));
+//}
+
+[numthreads(16,16,1)]
+void CSMain (uint3 id : SV_DispatchThreadID)
+{
+	printf("%d %d %d", id.x, id.y, id.z);
+
+	//float1 a = Params[0] + Params[1] * id.x;
+	//float1 b = Params[2] - Params[3] * id.y;
+	//float2 c = float2(a, b);
+	//float2 d = float2(0, 0);
+
+	//uint i;
+	//for (i = 0; i < Iterations && Mag(d) <= 2; i++)
+	//{
+	//	d = Mult(d, d) + c;
+	//}
+
+	//i = (float)i / (float)Iterations * 255.0;
+	//RendTex[id.xy] = float4(i, i, i, 255);
+
+    RendTex[id.xy] = float4(255, 0, 0, 255);
+}

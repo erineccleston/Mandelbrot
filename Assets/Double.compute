@@ -1,0 +1,39 @@
+﻿#pragma kernel Mandelbrot
+
+// left, dx, bottom, dy
+float4 Parameters;
+int Iterations;
+RWTexture2D<float4> RendTex;
+
+float4 HUEtoRGB(in float H)
+{
+	float R = abs(H * 6 - 3) - 1;
+	float G = 2 - abs(H * 6 - 2);
+	float B = 2 - abs(H * 6 - 4);
+	return saturate(float4(R, G, B, 1));
+}
+
+[numthreads(32, 32, 1)]
+void Mandelbrot(uint3 id : SV_DispatchThreadID)
+{
+	double a = (double)Parameters.x + (double)id.x * (double)Parameters.y;
+	double b = (double)Parameters.z + (double)id.y * (double)Parameters.w;
+
+	double2x2 c =
+	{
+		a, -b,
+		b, a
+	};
+
+	double2x2 d = c;
+
+	int iter;
+	for (iter = 0; iter < Iterations && determinant(d) <= 4; iter++)
+	{
+		d = mul(d, d) + c;
+	}
+
+	float val = 1.0 - (float)iter / (Iterations - 1);
+
+	RendTex[id.xy] = iter == Iterations ? float4(0, 0, 0, 1) : HUEtoRGB((float)iter / Iterations);
+}
