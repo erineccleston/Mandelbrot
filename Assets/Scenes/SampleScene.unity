@@ -153,7 +153,6 @@ MonoBehaviour:
   Shader: {fileID: 7200000, guid: 265520668d126304f8c6cdc023ba3d31, type: 3}
   Iterations: 128
   Speed: {x: 0.5, y: 0.5, z: 0.5}
-  ABR: {x: -0.75, y: 0, z: 1}
 --- !u!20 &519420030
 Camera:
   m_ObjectHideFlags: 0
