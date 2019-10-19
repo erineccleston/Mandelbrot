@@ -13,10 +13,10 @@ public class Test : MonoBehaviour
 
     public Vector3 Speed = Vector3.one;
 
-    static readonly Double3 Default = new Double3(-0.75, 0, 1);
+    public double A = -0.75, B = 0, R = 1;
+    private double Al, Bl, Rl;
 
-    private Double3 ABR = Default;
-    private Double3 Last;
+    public bool Debug;
 
     private RenderTexture Temp;
     private ComputeBuffer CB;
@@ -37,17 +37,15 @@ public class Test : MonoBehaviour
             return (Input.GetKey(negative) ? -1 : 0) + (Input.GetKey(positive) ? 1 : 0);
         }
 
-        double a, b, r;
-        double scale = Time.deltaTime * ABR.z;
-        a = GetValue(KeyCode.A, KeyCode.D) * Speed.x * scale;
-        b = GetValue(KeyCode.S, KeyCode.W) * Speed.y * scale;
-        r = GetValue(KeyCode.E, KeyCode.Q) * Speed.z * scale;
-        ABR += new Double3(a, b, r);
+        double scale = Time.deltaTime * R;
+        A += GetValue(KeyCode.A, KeyCode.D) * Speed.x * scale;
+        B += GetValue(KeyCode.S, KeyCode.W) * Speed.y * scale;
+        R += GetValue(KeyCode.E, KeyCode.Q) * Speed.z * scale;
 
         if (Input.GetKeyDown(KeyCode.UpArrow))
         {
             Iterations *= 2;
-            Last = new Double3();
+            Rl = 0;
             Shader.SetInt("Iterations", Iterations);
         }
 
@@ -55,13 +53,15 @@ public class Test : MonoBehaviour
         {
             if (Iterations >= 2)
                 Iterations /= 2;
-            Last = new Double3();
+            Rl = 0;
             Shader.SetInt("Iterations", Iterations);
         }
 
         if (Input.GetKeyDown(KeyCode.R))
         {
-            ABR = Default;
+            A = -0.75;
+            B = 0;
+            R = 1;
         }
 
         if (Input.GetKeyDown(KeyCode.Escape))
@@ -93,14 +93,14 @@ public class Test : MonoBehaviour
 
     List<double> GetParams(double width, double height)
     {
-        double r1 = ABR.z;
-        double r2 = ABR.z * (width / height);
+        double r1 = R;
+        double r2 = R * (width / height);
 
         return new List<double>()
         {
-            ABR.x - r2,
+            A - r2,
             r2 * 2 / width,
-            ABR.y - r1,
+            B - r1,
             r1 * 2 / height
         };
     }
@@ -121,13 +121,14 @@ public class Test : MonoBehaviour
             Shader.SetTexture(0, "RendTex", Temp);
         }
 
-        if (ABR.x != Last.x || ABR.y != Last.y || ABR.z != Last.z || false)
+        if (A != Al || B != Bl || R != Rl || Debug)
         {
-            //Shader.SetVector("Parameters", SetParams(width, height));
             CB.SetData(GetParams(width, height));
 
             Shader.Dispatch(0, (width + 31) / 32, (height + 31) / 32, 1);
-            Last = ABR;
+            Al = A;
+            Bl = B;
+            Rl = R;
         }
 
         Graphics.Blit(Temp, null as RenderTexture); // test null vs dst
