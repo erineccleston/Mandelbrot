@@ -2,7 +2,6 @@
 
 // left, dx, bottom, dy
 StructuredBuffer<double> Params;
-//double Parameters[4];
 
 int Iterations;
 
@@ -22,6 +21,17 @@ void Mandelbrot(uint3 id : SV_DispatchThreadID)
 	double a = Params.Load(0) + (double)id.x * Params.Load(1);
 	double b = Params.Load(2) + (double)id.y * Params.Load(3);
 
+	double f = a - (1.0 / 4.0);
+	double q = f * f + b * b;
+	bool inCard = q * (q + f) <= (1.0 / 4.0) * b * b;
+	bool inBulb = (a + 1) * (a + 1) + b * b <= 1.0 / 16.0;
+
+	if (inCard || inBulb)
+	{
+		RendTex[id.xy] = float4(0, 0, 0, 1);
+		return;
+	}
+
 	double2x2 c =
 	{
 		a, -b,
@@ -33,10 +43,19 @@ void Mandelbrot(uint3 id : SV_DispatchThreadID)
 	int iter;
 	for (iter = 0; iter < Iterations && determinant(d) <= 4; iter++)
 	{
-		d = mul(d, d) + c;
-	}
+		//d = mul(d, d) + c;
+		double2x2 temp = mul(d, d) + c;
 
-	//float val = 1.0 - (float)iter / (Iterations - 1);
+		if (temp._11 == d._11 && temp._21 == d._21)
+		{
+			iter = Iterations;
+			break;
+		}
+		else
+		{
+			d = temp;
+		}
+	}
 
 	RendTex[id.xy] = iter == Iterations ? float4(0, 0, 0, 1) : HUEtoRGB((float)iter / Iterations);
 }
