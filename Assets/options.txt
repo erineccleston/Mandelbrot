@@ -1,0 +1,13 @@
+both
+2D/3D
+Mandelbrot/Julia/Burning Ship
+Movement sensitivity
+
+
+2D only
+WASD movement, reset, back to menu, search depth
+
+3D only
+w-axis value
+model resolution (incremental or total verts)
+mouse rotation, scroll wheel zoom, lock lights?, back to menu
