@@ -1,13 +1,16 @@
-﻿#pragma kernel Mandelbrot
+﻿
+#pragma kernel Mandelbrot
 
 // reduce to float or even half?
 
 // left, dx, bottom, dy, near, dz, fourth
 StructuredBuffer<double> Params;
 
+//RWStructuredBuffer<float> Data;
+
 int Iterations;
 
-RWTexture3D<float4> Volume; // bool buffer instead?
+RWTexture3D<float4> Volume; // buffer instead?
 
 [numthreads(10, 10, 10)] // or 8, 8, 8?
 void Mandelbrot(uint3 id : SV_DispatchThreadID)
