@@ -30,7 +30,7 @@ public class Mandelbulb
 
         shader.Dispatch(0, (voxels.x + 9) / 10, (voxels.y + 9) / 10, (voxels.z + 9) / 10);
 
-        March(Array.ConvertAll(t3d.GetPixels(), c => c.a), voxels);
+        //March(Array.ConvertAll(t3d.GetPixels(), c => c.a), voxels);
 
         args.Release();
         args = null;
