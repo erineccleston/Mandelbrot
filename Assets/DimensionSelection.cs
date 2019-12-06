@@ -13,7 +13,7 @@ public class DimensionSelection : MonoBehaviour
     void Start()
     {
         ThreeDimensionOptions.SetActive(false);
-        TwoDimensionOptions.SetActive(truex);
+        TwoDimensionOptions.SetActive(true);
     }
 
     // Update is called once per frame
