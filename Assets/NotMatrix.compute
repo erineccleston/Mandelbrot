@@ -46,6 +46,12 @@ void Mandelbrot(uint3 id : SV_DispatchThreadID)
 		za = (aSq - bSq + ca);
 		zb = (abSq - aSq - bSq + cb);
 
+		if (Fractal == 1)
+		{
+			ca = log(Iterations) / 10;
+			cb = 0;
+		}
+
 		if (Fractal == 2)
 		{
 			za = abs(za);

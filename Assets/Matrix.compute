@@ -21,13 +21,16 @@ void Mandelbrot(uint3 id : SV_DispatchThreadID)
 	double a = Params.Load(0) + (double)id.x * Params.Load(1);
 	double b = Params.Load(2) + (double)id.y * Params.Load(3);
 
-	double2x2 c =
+	double2x2 d =
 	{
 		a, -b,
 		b, a
 	};
 
-	double2x2 d = c;
+	double2x2 c =
+	{
+		0, 0, 0, 0
+	};
 
 	int iter;
 	for (iter = 0; iter < Iterations && determinant(d) <= 4; iter++)

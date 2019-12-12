@@ -66,7 +66,7 @@ public class Test : MonoBehaviour
         {
             A = -0.75;
             B = 0;
-            R = 1.25;
+            R = 0;
         }
 
         if (Input.GetKeyDown(KeyCode.Escape))
@@ -88,6 +88,8 @@ public class Test : MonoBehaviour
 
     void OnDisable()
     {
+        Cursor.visible = true;
+
         Rl = 0;
 
         if (Temp != null)
