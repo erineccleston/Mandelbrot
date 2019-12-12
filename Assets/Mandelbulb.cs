@@ -6,19 +6,22 @@ using MarchingCubesProject;
 
 public class Mandelbulb
 {
+    //readonly RenderTexture Volume;
     public readonly Mesh Mesh = new Mesh();
+    public float[] Data;
 
     public Mandelbulb(ComputeShader shader, Vector3Int voxels, Vector3d start, Vector3d end, double w, int iterations)
     {
         double step(int i) => (end[i] - start[i]) / voxels[i];
 
-        var t3d = new RenderTexture(voxels.x, voxels.y, 0);
-        t3d.dimension = TextureDimension.Tex3D;
-        t3d.volumeDepth = voxels.z;
-        t3d.enableRandomWrite = true;
-        t3d.Create();
-        //Texture3D t3d = new Texture3D(voxels.x, voxels.y, voxels.z, TextureFormat.Alpha8, false);
-        shader.SetTexture(0, "Volume", t3d);
+        //Volume = new RenderTexture(voxels.x, voxels.y, 0);
+        ////Volume.format = alpha8
+        //Volume.dimension = TextureDimension.Tex3D;
+        //Volume.volumeDepth = voxels.z;
+        //Volume.enableRandomWrite = true;
+        //Volume.Create();
+        ////Texture3D t3d = new Texture3D(voxels.x, voxels.y, voxels.z, TextureFormat.Alpha8, false);
+        //shader.SetTexture(0, "Volume", Volume);
 
         shader.SetInt("Iterations", iterations);
 
@@ -26,18 +29,37 @@ public class Mandelbulb
         args.SetData(new[] { start.x, step(0), start.y, step(1), start.z, step(2), w });
         shader.SetBuffer(0, "Params", args);
 
-        //ComputeBuffer data = new ComputeBuffer(voxels.x * voxels.y * voxels.z, sizeof(float));
+        ComputeBuffer data = new ComputeBuffer(voxels.x * voxels.y * voxels.z, sizeof(float), ComputeBufferType.Raw);
+        shader.SetBuffer(0, "Data", data);
 
         shader.Dispatch(0, (voxels.x + 9) / 10, (voxels.y + 9) / 10, (voxels.z + 9) / 10);
 
-        //March(Array.ConvertAll(t3d.GetPixels(), c => c.a), voxels);
+        Data = new float[voxels.x * voxels.y * voxels.z];
+        data.GetData(Data);
+        March(Data, voxels);
 
         args.Release();
         args = null;
 
-        t3d.Release();
-        t3d = null;
+        data.Release();
+        data = null;
     }
+
+    //~Mandelbulb()
+    //{
+    //    Volume.Release();
+    //}
+
+    //public Mesh Generate()
+    //{
+    //    var old = RenderTexture.active;
+    //    RenderTexture.active = Volume;
+
+    //    var t3d = new Texture3D();
+    //    t3d.SetPixels
+
+    //    RenderTexture.active = old;
+    //}
 
     void March(IList<float> voxels, Vector3Int dimensions)
     {
