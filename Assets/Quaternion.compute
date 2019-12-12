@@ -6,14 +6,14 @@
 // left, dx, bottom, dy, near, dz, fourth
 StructuredBuffer<double> Params;
 
-//RWStructuredBuffer<float> Data;
+RWByteAddressBuffer Data;
 
 int Iterations;
 
 RWTexture3D<float4> Volume; // buffer instead?
 
 [numthreads(10, 10, 10)] // or 8, 8, 8?
-void Mandelbrot(uint3 id : SV_DispatchThreadID)
+void Mandelbrot(uint3 id : SV_DispatchThreadID, uint gI : SV_GroupIndex)
 {
 	double a = Params.Load(0) + (double)id.x * Params.Load(1);
 	double i = Params.Load(2) + (double)id.y * Params.Load(3);
@@ -21,20 +21,20 @@ void Mandelbrot(uint3 id : SV_DispatchThreadID)
 	double k = Params.Load(6); // lock another dimension?
 
 	double4x4 q = // quaternion
-	{
-		a,  i,  j,  k,
-		i, -a,  k, -j,
-		j, -k, -a,  i,
-		k,  j, -i, -a
-	};
-
-	//double4x4 t = // tessarine (bicomplex)
 	//{
 	//	a,  i,  j,  k,
 	//	i, -a,  k, -j,
-	//	j,  k,  a,  i,
-	//	k, -j,  i, -a
+	//	j, -k, -a,  i,
+	//	k,  j, -i, -a
 	//};
+
+	//double4x4 t = // tessarine (bicomplex)
+	{
+		a,  i,  j,  k,
+		i, -a,  k, -j,
+		j,  k,  a,  i,
+		k, -j,  i, -a
+	};
 
 	double4x4 z = q;
 
@@ -44,5 +44,6 @@ void Mandelbrot(uint3 id : SV_DispatchThreadID)
 		z = mul(z, z) + q;
 	}
 
-	Volume[id.xyz] = iter == Iterations ? float4(1, 1, 1, 1) : float4(0, 0, 0, 0);
+	//Volume[id.xyz] = iter == Iterations ? float4(1, 1, 1, 1) : float4(0, 0, 0, 0);
+	Data.Store(gI, iter == Iterations ? asuint(1.0) : asuint(0.0));
 }

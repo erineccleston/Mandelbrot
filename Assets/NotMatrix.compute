@@ -5,6 +5,9 @@ StructuredBuffer<double> Params;
 
 int Iterations;
 
+// Mandelbrot, Julia, Ship
+int Fractal;
+
 RWTexture2D<float4> RendTex;
 
 float4 HUEtoRGB(float H)
@@ -21,17 +24,38 @@ void Mandelbrot(uint3 id : SV_DispatchThreadID)
 	double ca = Params.Load(0) + (double)id.x * Params.Load(1);
 	double cb = Params.Load(2) + (double)id.y * Params.Load(3);
 
+	if (Fractal == 0)
+	{
+		double f = ca - (1.0 / 4.0);
+		double q = f * f + cb * cb;
+		bool inCard = q * (q + f) <= (1.0 / 4.0) * cb * cb;
+		bool inBulb = (ca + 1) * (ca + 1) + cb * cb <= 1.0 / 16.0;
+
+		if (inCard || inBulb)
+		{
+			RendTex[id.xy] = float4(0, 0, 0, 0);
+			return;
+		}
+	}
+
 	double za, zb, aSq = 0, bSq = 0, abSq = 0;
 
 	int iter;
 	for (iter = -1; aSq + bSq <= 4 && iter < Iterations; iter++)
 	{
-		za = aSq - bSq + ca;
-		zb = abSq - aSq - bSq + cb;
+		za = (aSq - bSq + ca);
+		zb = (abSq - aSq - bSq + cb);
+
+		if (Fractal == 2)
+		{
+			za = abs(za);
+			zb = abs(zb);
+		}
+
 		aSq = za * za;
 		bSq = zb * zb;
 		abSq = (za + zb) * (za + zb);
 	}
 
-	RendTex[id.xy] = iter == Iterations ? float4(0, 0, 0, 1) : HUEtoRGB((float)iter / Iterations);
+	RendTex[id.xy] = iter == Iterations ? float4(0, 0, 0, 0) : HUEtoRGB((float)(iter % 64) / 64);
 }

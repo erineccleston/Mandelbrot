@@ -21,13 +21,18 @@ public class Test : MonoBehaviour
     private RenderTexture Temp;
     private ComputeBuffer CB;
 
-    void Awake()
+    private AlgorithmSelection AS;
+
+    void OnEnable()
     {
         Cursor.visible = false;
         Shader.SetInt("Iterations", Iterations);
 
-        CB = new ComputeBuffer(4, 8);
+        CB = new ComputeBuffer(4, sizeof(double));
         Shader.SetBuffer(0, "Params", CB);
+
+        AS = FindObjectOfType<AlgorithmSelection>();
+        Shader.SetInt("Fractal", (int)AS.GetCurrentFractal());
     }
 
     void Update()
@@ -61,12 +66,14 @@ public class Test : MonoBehaviour
         {
             A = -0.75;
             B = 0;
-            R = 1;
+            R = 1.25;
         }
 
         if (Input.GetKeyDown(KeyCode.Escape))
         {
-            Application.Quit();
+            //Application.Quit();
+            AS.gameObject.SetActive(true);
+            gameObject.SetActive(false);
         }
 
         //if (Input.GetKeyDown(KeyCode.SysReq))
@@ -79,8 +86,10 @@ public class Test : MonoBehaviour
         //}
     }
 
-    void OnDestroy()
+    void OnDisable()
     {
+        Rl = 0;
+
         if (Temp != null)
         {
             Temp.Release();
@@ -100,8 +109,8 @@ public class Test : MonoBehaviour
         {
             A - r2,
             r2 * 2 / width,
-            B - r1,
-            r1 * 2 / height
+            -B + r1,
+            -r1 * 2 / height
         };
     }
 
